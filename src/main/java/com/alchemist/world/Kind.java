@@ -9,8 +9,13 @@ public class Kind extends Room {
     }
 
     @Override
+    public MoralityScore.Type getType() {
+        return MoralityScore.Type.KIND;
+    }
+
+    @Override
     public void draw(GraphicsContext gc) {
         gc.setFill(Color.GREEN);
-        gc.fillRect(0,0,width,height);
+        gc.fillRect(x, y, width, height);
     }
 }

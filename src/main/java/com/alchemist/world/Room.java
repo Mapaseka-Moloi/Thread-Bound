@@ -8,8 +8,9 @@ import java.util.List;
 
 public abstract class Room {
     private String name;
-    protected int width, height;
-    private List<String> scenarios;
+    protected int x, y, width, height;
+    private List<Scenario> scenarios;
+    private boolean triggered = false;
 
     public Room(String name) {
         this.name = name;
@@ -20,18 +21,37 @@ public abstract class Room {
         return name;
     }
 
-    public List<String> getScenarios() {
+    public List<Scenario> getScenarios() {
         return Collections.unmodifiableList(scenarios);
     }
 
-    public void addScenario(String scenario) {
+    public void addScenario(Scenario scenario) {
         scenarios.add(scenario);
+    }
+
+    public void setPosition(int x, int y) {
+        this.x = x;
+        this.y = y;
     }
 
     public void setSize(int width, int height) {
         this.width = width;
         this.height = height;
     }
+
+    public boolean contains(double px, double py) {
+        return px >= x && px <= x + width && py >= y && py <= y + height;
+    }
+
+    public boolean isTriggered() {
+        return triggered;
+    }
+
+    public void markTriggered() {
+        triggered = true;
+    }
+
+    public abstract MoralityScore.Type getType();
 
     public abstract void draw(GraphicsContext gc);
 }

@@ -9,8 +9,13 @@ public class Cruel extends Room {
     }
 
     @Override
+    public MoralityScore.Type getType() {
+        return MoralityScore.Type.CRUEL;
+    }
+
+    @Override
     public void draw(GraphicsContext gc) {
         gc.setFill(Color.RED);
-        gc.fillRect(0,0,width,height);
+        gc.fillRect(x, y, width, height);
     }
 }

@@ -9,8 +9,13 @@ public class Deceit extends Room {
     }
 
     @Override
+    public MoralityScore.Type getType() {
+        return MoralityScore.Type.DECEIT;
+    }
+
+    @Override
     public void draw(GraphicsContext gc) {
         gc.setFill(Color.ORANGE);
-        gc.fillRect(0,0,width,height);
+        gc.fillRect(x, y, width, height);
     }
 }
