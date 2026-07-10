@@ -13,5 +13,6 @@ public class Forward extends Command {
 
 
         }
+        return this;
     }
 }
