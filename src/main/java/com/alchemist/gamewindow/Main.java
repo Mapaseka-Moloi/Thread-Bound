@@ -1,5 +1,6 @@
 package com.alchemist.gamewindow;
 
+import com.alchemist.world.*;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -14,6 +15,10 @@ public class Main extends Application {
     private final int WIDTH = 800;
     private final int HEIGHT = 600;
     Player player = new Player(WIDTH/2, HEIGHT/2);
+    Room cruel = new Cruel("Cruel_Room");
+    Room deceit = new Deceit("Deceit_Room");
+    Room honest = new Honest("Honest_Room");
+    Room kind = new Kind("Kind_Room");
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -53,6 +58,10 @@ public class Main extends Application {
         gc.setFill(Color.BLACK);
         gc.fillRect(0,0,WIDTH,HEIGHT);
         player.draw(gc);
+        cruel.draw(gc);
+        deceit.draw(gc);
+        honest.draw(gc);
+        kind.draw(gc);
     }
     private void update(){
         player.update();
@@ -61,5 +70,4 @@ public class Main extends Application {
     public static void main(String[] args){
         launch(args);
     }
-
 }

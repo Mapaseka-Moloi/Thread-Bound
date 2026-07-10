@@ -1,8 +1,16 @@
 package com.alchemist.world;
 
-public class Cruel implements Morality {
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+
+public class Cruel extends Room {
+    public Cruel(String name) {
+        super(name);
+    }
+
     @Override
-    public String decision(String choice) {
-        return choice;
+    public void draw(GraphicsContext gc) {
+        gc.setFill(Color.RED);
+        gc.fillRect(0,0,width,height);
     }
 }
