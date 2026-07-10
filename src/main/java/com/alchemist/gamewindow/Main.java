@@ -18,11 +18,11 @@ public class Main extends Application {
     private final int HEIGHT = 600;
     Player player = new Player(WIDTH/2, HEIGHT/2);
 
-    Room cruel = new Cruel("Cruel_Room");
-    Room deceit = new Deceit("Deceit_Room");
-    Room honest = new Honest("Honest_Room");
-    Room kind = new Kind("Kind_Room");
-    Room[] rooms = { cruel, deceit, honest, kind };
+    Room cruelRoom = new Cruel("Room_1");
+    Room deceitRoom = new Deceit("Room_2");
+    Room honestRoom = new Honest("Room_3");
+    Room kindRoom = new Kind("Room_4");
+    Room[] rooms = { cruelRoom, deceitRoom, honestRoom, kindRoom };
 
     Ally ally1 = new Ally("Sana", 400, 150);
     Ally ally2 = new Ally("Teo", 400, 450);
@@ -33,8 +33,12 @@ public class Main extends Application {
 
     boolean consequenceTriggered = false;
     boolean rewardTriggered = false;
+    boolean gameOver = false;
 
-    String activeMessage = "Walk into a colored room to trigger a scenario.";
+    Room activeRoom = null;
+    int roomStep = 0;
+    String activeMessage = "Walk into a room to face a choice.";
+    String endingText = "";
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -53,17 +57,21 @@ public class Main extends Application {
         Platform.runLater(canvas::requestFocus);
 
         scene.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.W) player.up = true;
-            if (e.getCode() == KeyCode.S) player.down = true;
-            if (e.getCode() == KeyCode.A) player.left = true;
-            if (e.getCode() == KeyCode.D) player.right = true;
+            KeyCode k = e.getCode();
+            if (k == KeyCode.W || k == KeyCode.UP) player.up = true;
+            if (k == KeyCode.S || k == KeyCode.DOWN) player.down = true;
+            if (k == KeyCode.A || k == KeyCode.LEFT) player.left = true;
+            if (k == KeyCode.D || k == KeyCode.RIGHT) player.right = true;
+            if (k == KeyCode.Y) chooseOption(true);
+            if (k == KeyCode.N) chooseOption(false);
         });
 
         scene.setOnKeyReleased(e -> {
-            if (e.getCode() == KeyCode.W) player.up = false;
-            if (e.getCode() == KeyCode.S) player.down = false;
-            if (e.getCode() == KeyCode.A) player.left = false;
-            if (e.getCode() == KeyCode.D) player.right = false;
+            KeyCode k = e.getCode();
+            if (k == KeyCode.W || k == KeyCode.UP) player.up = false;
+            if (k == KeyCode.S || k == KeyCode.DOWN) player.down = false;
+            if (k == KeyCode.A || k == KeyCode.LEFT) player.left = false;
+            if (k == KeyCode.D || k == KeyCode.RIGHT) player.right = false;
         });
 
         AnimationTimer gameloop = new AnimationTimer() {
@@ -77,30 +85,69 @@ public class Main extends Application {
     }
 
     private void setupRooms() {
-        cruel.setPosition(0, 0);
-        cruel.setSize(200, 200);
-        cruel.addScenario(new Scenario("cruel_1",
-                "You threaten a witness to get information faster.", 1, 3, 1));
+        cruelRoom.setPosition(0, 0);
+        cruelRoom.setSize(200, 200);
+        cruelRoom.addScenario(new Scenario("cruel_1",
+                "A witness is stalling. You need answers now.",
+                "Y = Threaten them until they talk",
+                "N = Wait patiently for them to speak",
+                1, 3, 1));
+        cruelRoom.addScenario(new Scenario("cruel_2",
+                "A rival is cornered and defenseless.",
+                "Y = Strike while you have the chance",
+                "N = Let them go",
+                2, 3, 1));
 
-        deceit.setPosition(600, 0);
-        deceit.setSize(200, 200);
-        deceit.addScenario(new Scenario("deceit_1",
-                "You lie to a grieving companion to spare them pain.", 2, 2, 2));
+        deceitRoom.setPosition(600, 0);
+        deceitRoom.setSize(200, 200);
+        deceitRoom.addScenario(new Scenario("deceit_1",
+                "Your friend asks how their sibling really died.",
+                "Y = Tell a comforting lie",
+                "N = Tell them the painful truth",
+                2, 2, 2));
+        deceitRoom.addScenario(new Scenario("deceit_2",
+                "A guard asks for your papers at the checkpoint.",
+                "Y = Hand over forged papers",
+                "N = Hand over your real, incomplete papers",
+                1, 2, 1));
 
-        honest.setPosition(0, 400);
-        honest.setSize(200, 200);
-        honest.addScenario(new Scenario("honest_1",
-                "You admit your plan failed because of your own mistake.", 2, 2, 3));
+        honestRoom.setPosition(0, 400);
+        honestRoom.setSize(200, 200);
+        honestRoom.addScenario(new Scenario("honest_1",
+                "Your plan failed. The team is asking what happened.",
+                "Y = Admit it was your mistake",
+                "N = Let them believe it was bad luck",
+                2, 2, 3));
+        honestRoom.addScenario(new Scenario("honest_2",
+                "A stranger asks if the road ahead is safe.",
+                "Y = Warn them about the danger",
+                "N = Say nothing and let them find out",
+                1, 1, 1));
 
-        kind.setPosition(600, 400);
-        kind.setSize(200, 200);
-        kind.addScenario(new Scenario("kind_1",
-                "You share your rations with a struggling village.", 3, 2, 2));
+        kindRoom.setPosition(600, 400);
+        kindRoom.setSize(200, 200);
+        kindRoom.addScenario(new Scenario("kind_1",
+                "A beggar asks for food outside the village.",
+                "Y = Share your rations with them",
+                "N = Walk past and keep your food",
+                3, 2, 2));
+        kindRoom.addScenario(new Scenario("kind_2",
+                "An old enemy is injured and begging for help.",
+                "Y = Stop and help them",
+                "N = Leave them behind",
+                2, 2, 3));
     }
 
     private void render(GraphicsContext gc){
         gc.setFill(Color.BLACK);
         gc.fillRect(0,0,WIDTH,HEIGHT);
+
+        if (gameOver) {
+            gc.setFill(Color.WHITE);
+            gc.setFont(new Font(20));
+            gc.fillText(endingText, 40, 250, 720);
+            return;
+        }
 
         for (Room r : rooms) r.draw(gc);
         for (Ally a : allies) a.draw(gc);
@@ -108,30 +155,60 @@ public class Main extends Application {
 
         gc.setFill(Color.WHITE);
         gc.setFont(new Font(16));
-        gc.fillText(activeMessage, 20, 550, 760);
-        gc.fillText("Kind:" + score.getScore(MoralityScore.Type.KIND) +
-                "  Cruel:" + score.getScore(MoralityScore.Type.CRUEL) +
-                "  Deceit:" + score.getScore(MoralityScore.Type.DECEIT) +
-                "  Honest:" + score.getScore(MoralityScore.Type.HONEST), 20, 20);
+
+        if (activeRoom != null) {
+            Scenario s = activeRoom.getScenarios().get(roomStep);
+            gc.fillText(s.getDescription(), 20, 500, 760);
+            gc.fillText(s.getYesChoiceText(), 20, 525, 760);
+            gc.fillText(s.getNoChoiceText(), 20, 550, 760);
+        } else {
+            gc.fillText(activeMessage, 20, 550, 760);
+        }
     }
 
     private void update(){
+        if (gameOver) return;
         player.update();
         checkRoomTriggers();
         checkAllies();
         checkThresholds();
+        checkEnding();
     }
 
     private void checkRoomTriggers() {
+        if (activeRoom != null) return;
         for (Room r : rooms) {
             if (!r.isTriggered() && r.contains(player.x, player.y)) {
-                r.markTriggered();
-                Scenario s = r.getScenarios().get(0);
-                score.apply(r.getType(), s);
-                history.record(r.getType(), s);
-                activeMessage = r.getName() + ": " + s.getDescription() +
-                        " (severity " + s.getSeverity() + ")";
+                activeRoom = r;
+                roomStep = 0;
             }
+        }
+    }
+
+    private void chooseOption(boolean pickedYes) {
+        if (activeRoom == null) return;
+
+        Scenario s = activeRoom.getScenarios().get(roomStep);
+        MoralityScore.Type resultType = pickedYes ? activeRoom.getType() : oppositeOf(activeRoom.getType());
+
+        score.apply(resultType, s);
+        history.record(resultType, s);
+        activeMessage = "You made your choice.";
+
+        roomStep++;
+        if (roomStep >= activeRoom.getScenarios().size()) {
+            activeRoom.markTriggered();
+            activeRoom = null;
+        }
+    }
+
+    private MoralityScore.Type oppositeOf(MoralityScore.Type t) {
+        switch (t) {
+            case CRUEL: return MoralityScore.Type.HONEST;
+            case DECEIT: return MoralityScore.Type.HONEST;
+            case HONEST: return MoralityScore.Type.CRUEL;
+            case KIND: return MoralityScore.Type.CRUEL;
+            default: return t;
         }
     }
 
@@ -149,16 +226,31 @@ public class Main extends Application {
         int bad = score.getScore(MoralityScore.Type.CRUEL) + score.getScore(MoralityScore.Type.DECEIT);
         int good = score.getScore(MoralityScore.Type.KIND) + score.getScore(MoralityScore.Type.HONEST);
 
-        if (!consequenceTriggered && bad >= 5) {
+        if (!consequenceTriggered && bad >= 6) {
             consequenceTriggered = true;
             player.speed = 1.5;
-            activeMessage = "Your past actions catch up with you. The road ahead feels heavier.";
+            activeMessage = "Something in you feels heavier than before.";
         }
 
-        if (!rewardTriggered && good >= 5) {
+        if (!rewardTriggered && good >= 6) {
             rewardTriggered = true;
             player.speed = 4.5;
-            activeMessage = "Word of your kindness has spread. You feel lighter, stronger.";
+            activeMessage = "Something in you feels lighter than before.";
+        }
+    }
+
+    private void checkEnding() {
+        boolean allDone = true;
+        for (Room r : rooms) {
+            if (!r.isTriggered()) allDone = false;
+        }
+        if (allDone && !gameOver) {
+            gameOver = true;
+            MoralityScore.Type dominant = score.getDominantType();
+            endingText = "Your journey is over.\n\nLooking back at everything you did,\nthe thread that binds you most is:\n\n" + dominant + "\n\nKind: " + score.getScore(MoralityScore.Type.KIND) +
+                    "   Cruel: " + score.getScore(MoralityScore.Type.CRUEL) +
+                    "   Deceit: " + score.getScore(MoralityScore.Type.DECEIT) +
+                    "   Honest: " + score.getScore(MoralityScore.Type.HONEST);
         }
     }
 

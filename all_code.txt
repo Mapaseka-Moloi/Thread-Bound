@@ -1,0 +1,477 @@
+﻿
+===== C:\Users\rena2\ThreadBound\src\main\java\Main.java =====
+
+public class Main {
+
+    public static void main(String[] args){
+
+    }
+}
+
+===== C:\Users\rena2\ThreadBound\src\main\java\com\alchemist\command\Command.java =====
+
+package com.alchemist.command;
+
+public abstract class Command {
+    private final String name;
+    private String arguments;
+
+    public Command(String name, String arguments) {
+        this.name = name;
+        this.arguments = arguments;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getArguments() {
+        return arguments;
+    }
+
+    public abstract Command execute(String name, String argument);
+}
+
+===== C:\Users\rena2\ThreadBound\src\main\java\com\alchemist\command\Forward.java =====
+
+package com.alchemist.command;
+
+public class Forward extends Command {
+    public Forward(String name, String argument) {
+        super(name, argument);
+    }
+
+    @Override
+    public Command execute(String name, String argument) {
+        int arg = Integer.parseInt(argument);
+
+        for(int i = 0; i <= arg; i++) {
+
+
+        }
+        return this;
+    }
+}
+
+===== C:\Users\rena2\ThreadBound\src\main\java\com\alchemist\gamewindow\Game.java =====
+
+package com.alchemist.gamewindow;
+
+public class Game {
+}
+
+===== C:\Users\rena2\ThreadBound\src\main\java\com\alchemist\gamewindow\Main.java =====
+
+package com.alchemist.gamewindow;
+
+import com.alchemist.world.*;
+import javafx.animation.AnimationTimer;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.KeyCode;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
+
+public class Main extends Application {
+    private final int WIDTH = 800;
+    private final int HEIGHT = 600;
+    Player player = new Player(WIDTH/2, HEIGHT/2);
+    Room cruel = new Cruel("Cruel_Room");
+    Room deceit = new Deceit("Deceit_Room");
+    Room honest = new Honest("Honest_Room");
+    Room kind = new Kind("Kind_Room");
+
+    @Override
+    public void start(Stage stage) throws Exception {
+        Canvas canvas = new Canvas(WIDTH, HEIGHT);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        StackPane root = new StackPane(canvas);
+        Scene scene = new Scene(root, WIDTH, HEIGHT);
+        stage.setTitle("THREAD BOUND");
+        stage.setScene(scene);
+        stage.show();
+
+        scene.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.W) player.up = true;
+            if (e.getCode() == KeyCode.S) player.down = true;
+            if (e.getCode() == KeyCode.A) player.left = true;
+            if (e.getCode() == KeyCode.D) player.right = true;
+        });
+
+        scene.setOnKeyReleased(e -> {
+            if (e.getCode() == KeyCode.W) player.up = false;
+            if (e.getCode() == KeyCode.S) player.down = false;
+            if (e.getCode() == KeyCode.A) player.left = false;
+            if (e.getCode() == KeyCode.D) player.right = false;
+        });
+
+        AnimationTimer gameloop = new AnimationTimer() {
+            @Override
+            public void handle(long l) {
+                update();
+                render(gc);
+            }
+        };
+        gameloop.start();
+
+    }
+    private void render(GraphicsContext gc){
+        gc.setFill(Color.BLACK);
+        gc.fillRect(0,0,WIDTH,HEIGHT);
+        player.draw(gc);
+        cruel.draw(gc);
+        deceit.draw(gc);
+        honest.draw(gc);
+        kind.draw(gc);
+    }
+    private void update(){
+        player.update();
+    }
+
+    public static void main(String[] args){
+        launch(args);
+    }
+}
+
+===== C:\Users\rena2\ThreadBound\src\main\java\com\alchemist\gamewindow\MainLauncher.java =====
+
+package com.alchemist.gamewindow;
+
+public class MainLauncher {
+    public static void main(String[] args) {
+        Main.main(args);
+    }
+}
+
+===== C:\Users\rena2\ThreadBound\src\main\java\com\alchemist\gamewindow\Player.java =====
+
+package com.alchemist.gamewindow;
+
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+
+public class Player {
+    double x, y;
+    double angle = -Math.PI/2;
+    double speed = 3.0;
+    double turnSpeed = 0.04;
+
+    boolean up, down, left , right;
+
+    public Player (double x, double y){
+        this.x = x;
+        this.y = y;
+    }
+
+    public void update(){
+        if (left) angle -= turnSpeed;
+        if (right) angle += turnSpeed;
+
+        if (up) {
+            x += Math.cos(angle) * speed;
+            y += Math.sin(angle) * speed;
+        }
+
+        if (down) {
+            x -= Math.cos(angle) * speed;
+            y -= Math.sin(angle) * speed;
+        }
+
+        x = Math.clamp(x, 20, 800 - 20);
+        y = Math.clamp(y, 20, 600 - 20);
+    }
+
+    public void draw(GraphicsContext gc){
+        gc.save();
+        gc.translate(x, y);
+        gc.rotate(Math.toDegrees(angle));
+        gc.setFill(Color.CYAN);
+        gc.fillPolygon(new double[]{0, -15, 15}, new double[]{-20, 10, 10}, 3);
+        gc.restore();
+    }
+}
+
+===== C:\Users\rena2\ThreadBound\src\main\java\com\alchemist\world\Cruel.java =====
+
+package com.alchemist.world;
+
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+
+public class Cruel extends Room {
+    public Cruel(String name) {
+        super(name);
+    }
+
+    @Override
+    public void draw(GraphicsContext gc) {
+        gc.setFill(Color.RED);
+        gc.fillRect(0,0,width,height);
+    }
+}
+
+===== C:\Users\rena2\ThreadBound\src\main\java\com\alchemist\world\Deceit.java =====
+
+package com.alchemist.world;
+
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+
+public class Deceit extends Room {
+    public Deceit(String name) {
+        super(name);
+    }
+
+    @Override
+    public void draw(GraphicsContext gc) {
+        gc.setFill(Color.ORANGE);
+        gc.fillRect(0,0,width,height);
+    }
+}
+
+===== C:\Users\rena2\ThreadBound\src\main\java\com\alchemist\world\Direction.java =====
+
+package com.alchemist.world;
+
+public enum Direction {
+    NORTH,
+    EAST,
+    SOUTH,
+    WEST
+}
+
+===== C:\Users\rena2\ThreadBound\src\main\java\com\alchemist\world\Echo.java =====
+
+package com.alchemist.world;
+
+public class Echo {
+}
+
+===== C:\Users\rena2\ThreadBound\src\main\java\com\alchemist\world\Honest.java =====
+
+package com.alchemist.world;
+
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+
+public class Honest extends Room {
+    public Honest(String name) {
+        super(name);
+    }
+
+    @Override
+    public void draw(GraphicsContext gc) {
+        gc.setFill(Color.BLUE);
+        gc.fillRect(0,0,width,height);
+    }
+}
+
+===== C:\Users\rena2\ThreadBound\src\main\java\com\alchemist\world\Kind.java =====
+
+package com.alchemist.world;
+
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+
+public class Kind extends Room {
+    public Kind(String name) {
+        super(name);
+    }
+
+    @Override
+    public void draw(GraphicsContext gc) {
+        gc.setFill(Color.GREEN);
+        gc.fillRect(0,0,width,height);
+    }
+}
+
+===== C:\Users\rena2\ThreadBound\src\main\java\com\alchemist\world\Person.java =====
+
+package com.alchemist.world;
+
+public class Person {
+    private String name;
+    private Echo echo;
+    private double morality;
+
+    public Person(String name, Echo echo, double morality) {
+        this.name = name;
+        this.echo = echo;
+        this.morality = morality;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Echo getEcho() {
+        return echo;
+    }
+
+    public double getMorality() {
+        return morality;
+    }
+}
+
+===== C:\Users\rena2\ThreadBound\src\main\java\com\alchemist\world\Position.java =====
+
+package com.alchemist.world;
+
+public class Position {
+    private int x;
+    private int y;
+
+    public Position(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(this == o) {
+            return true;
+        }
+
+        if(o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Position position = (Position) o;
+
+        if(x != position.x) {
+            return false;
+        }
+        return y == position.y;
+    }
+}
+
+===== C:\Users\rena2\ThreadBound\src\main\java\com\alchemist\world\Room.java =====
+
+package com.alchemist.world;
+
+import javafx.scene.canvas.GraphicsContext;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public abstract class Room {
+    private String name;
+    protected int width, height;
+    private List<String> scenarios;
+
+    public Room(String name) {
+        this.name = name;
+        scenarios = new ArrayList<>();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public List<String> getScenarios() {
+        return Collections.unmodifiableList(scenarios);
+    }
+
+    public void addScenario(String scenario) {
+        scenarios.add(scenario);
+    }
+
+    public void setSize(int width, int height) {
+        this.width = width;
+        this.height = height;
+    }
+
+    public abstract void draw(GraphicsContext gc);
+}
+
+===== C:\Users\rena2\ThreadBound\src\main\java\com\alchemist\world\World.java =====
+
+package com.alchemist.world;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class World {
+    private int width;
+    private int height;
+    private Position position;
+    private Direction currentDirection;
+    private List<Room> rooms;
+
+    public World(int width, int height, Position position) {
+        this.width = width;
+        this.height = height;
+        this.position = position;
+        currentDirection = Direction.NORTH;
+        rooms = new ArrayList<>();
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public Position getPosition() {
+        return position;
+    }
+
+    public Direction getDirection() {
+        return currentDirection;
+    }
+
+    public List<Room> getRooms() {
+        return Collections.unmodifiableList(rooms);
+    }
+
+    public Position updatePosition(int steps) {
+        int newX = position.getX();
+        int newY = position.getY();
+
+        Position position = new Position(newX, newY);
+
+        for(int i = 0; i <= steps; i++) {
+            switch(currentDirection) {
+                case NORTH:
+                    newY += i;
+                case EAST:
+                    newX += i;
+                case SOUTH:
+                    newY -= i;
+                case WEST:
+                    newX -= i;
+            }
+        }
+
+        return position;
+    }
+
+    public void updateDirection(boolean turnRight) {
+        Direction[] directions = Direction.values();
+        int current = currentDirection.ordinal();
+        if(turnRight) {
+            currentDirection = directions[(current + 1) % directions.length];
+        } else {
+            currentDirection = directions[(current + 3) % directions.length];
+        }
+    }
+
+    public boolean isInWorld(Position position) {
+        return position.getX() >= 0 && position.getX() <= width || position.getY() >= 0 && position.getY() <= height;
+    }
+}

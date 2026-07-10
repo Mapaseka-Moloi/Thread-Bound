@@ -15,7 +15,8 @@ public class Kind extends Room {
 
     @Override
     public void draw(GraphicsContext gc) {
-        gc.setFill(Color.GREEN);
+        gc.setFill(Color.DARKGREEN);
         gc.fillRect(x, y, width, height);
+        drawPerson(gc, Color.PEACHPUFF, Color.FORESTGREEN);
     }
 }

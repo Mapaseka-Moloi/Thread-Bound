@@ -1,6 +1,7 @@
 package com.alchemist.world;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,4 +55,15 @@ public abstract class Room {
     public abstract MoralityScore.Type getType();
 
     public abstract void draw(GraphicsContext gc);
+
+    protected void drawPerson(GraphicsContext gc, Color skin, Color robe) {
+        double px = x + width / 2.0;
+        double py = y + height / 2.0;
+
+        gc.setFill(robe);
+        gc.fillRect(px - 12, py - 10, 24, 40);
+
+        gc.setFill(skin);
+        gc.fillOval(px - 10, py - 32, 20, 20);
+    }
 }
