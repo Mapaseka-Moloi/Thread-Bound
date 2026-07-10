@@ -1,6 +1,4 @@
 package com.alchemist.world;
 
-public interface Morality {
-
-
+public class Position {
 }
