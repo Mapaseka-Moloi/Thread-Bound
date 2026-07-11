@@ -1,7 +1,7 @@
 package com.alchemist.gamewindow;
 
 import com.alchemist.world.*;
-import com.alchemist.world.Direction;
+
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -18,8 +18,6 @@ public class Main extends Application {
     private final int WIDTH = 800;
     private final int HEIGHT = 600;
     Player player = new Player(WIDTH/2, HEIGHT/2);
-    private Direction currentDirection = Direction.NONE;
-
 
     Room cruelRoom = new Cruel("Room_1");
     Room deceitRoom = new Deceit("Room_2");
@@ -42,9 +40,6 @@ public class Main extends Application {
     int roomStep = 0;
     String activeMessage = "Walk into a room to face a choice.";
     String endingText = "";
-
-
-
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -159,50 +154,6 @@ public class Main extends Application {
         for (Ally a : allies) a.draw(gc);
         player.draw(gc);
 
-        double compassX = 400;
-        double compassY = 60;
-        double radius = 22;
-
-        gc.setLineWidth(2);
-        gc.setStroke(Color.DARKGRAY);
-        gc.strokeOval(compassX - radius, compassY - radius, radius * 2, radius * 2);
-
-        gc.setFont(new Font("Arial", 12));
-        gc.setFill(Color.GRAY);
-        gc.fillText("N", compassX - 4, compassY - radius - 4);
-        gc.fillText("S", compassX - 4, compassY + radius + 12);
-        gc.fillText("W", compassX - radius - 14, compassY + 4);
-        gc.fillText("E", compassX + radius + 4, compassY + 4);
-
-        double targetX = compassX;
-        double targetY = compassY;
-
-        if (currentDirection == Direction.NORTH) targetY -= radius - 5;
-        else if (currentDirection == Direction.SOUTH) targetY += radius - 5;
-        else if (currentDirection == Direction.WEST)  targetX -= radius - 5;
-        else if (currentDirection == Direction.EAST)  targetX += radius - 5;
-
-        // Draw compass indicator (Green vector pointing to moving direction)
-        if (currentDirection != Direction.NONE) {
-            gc.setStroke(Color.LIGHTGREEN);
-            gc.setLineWidth(3);
-            gc.strokeLine(compassX, compassY, targetX, targetY);
-
-            // Draw a small arrow indicator tip at target point
-            gc.setFill(Color.LIGHTGREEN);
-            gc.fillOval(targetX - 3, targetY - 3, 6, 6);
-        } else {
-            // Draw dead-center placeholder dot when idle
-            gc.setFill(Color.DARKGRAY);
-            gc.fillOval(compassX - 3, compassY - 3, 6, 6);
-        }
-
-        // Output matching text tracker right below UI element
-        gc.setFill(Color.LIGHTGREEN);
-        gc.setFont(new Font("Arial", 14));
-        gc.fillText("Heading: " + currentDirection, 20, 100);
-
-
         gc.setFill(Color.WHITE);
         gc.setFont(new Font(16));
 
@@ -216,34 +167,14 @@ public class Main extends Application {
         }
     }
 
-
-
     private void update(){
         if (gameOver) return;
         player.update();
-        calculateDirection();
         checkRoomTriggers();
         checkAllies();
         checkThresholds();
         checkEnding();
     }
-
-
-    private void calculateDirection() {
-        if (player.up) {
-            currentDirection = Direction.NORTH;
-        } else if (player.down) {
-            currentDirection = Direction.SOUTH;
-        } else if (player.left) {
-            currentDirection = Direction.WEST;
-        } else if (player.right) {
-            currentDirection = Direction.EAST;
-        } else {
-            currentDirection = Direction.NONE;
-        }
-    }
-
-
 
     private void checkRoomTriggers() {
         if (activeRoom != null) return;
