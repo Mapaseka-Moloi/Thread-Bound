@@ -13,11 +13,20 @@ public abstract class Room {
     private List<Scenario> scenarios;
     private boolean triggered = false;
 
-    // river obstacle
-    protected double riverX = 320;
+    // river obstacle (moves side to side over time)
+    protected double riverBaseX = 320;
+    protected double riverX = riverBaseX;
     protected double riverY = 200;
     protected double riverW = 40;
     protected double riverH = 200;
+    protected double riverRange = 40; // how far it drifts left/right
+
+    // patrolling guard obstacle (moves up and down)
+    protected double guardX = 480;
+    protected double guardBaseY = 300;
+    protected double guardY = guardBaseY;
+    protected double guardRange = 90;
+    protected double guardSize = 26;
 
     // NPC position
     protected double npcX = 650;
@@ -55,12 +64,27 @@ public abstract class Room {
                 && py >= y && py <= y + height;
     }
 
+    public double getCenterX() {
+        return x + width / 2.0;
+    }
+
+    public double getCenterY() {
+        return y + height / 2.0;
+    }
+
     public boolean isTriggered() {
         return triggered;
     }
 
     public void markTriggered() {
         triggered = true;
+    }
+
+    // called every frame while the player is inside this room, to animate obstacles
+    public void updateObstacles(long tick) {
+        double t = tick / 30.0;
+        riverX = riverBaseX + Math.sin(t) * riverRange;
+        guardY = guardBaseY + Math.sin(t * 1.3) * guardRange;
     }
 
     public boolean playerNearNPC(double px, double py) {
@@ -75,6 +99,11 @@ public abstract class Room {
 
     public boolean playerCrossedRiver(double px, boolean isJumping) {
         return px > riverX + riverW || isJumping;
+    }
+
+    public boolean playerHitsGuard(double px, double py) {
+        return Math.abs(px - guardX) < guardSize
+                && Math.abs(py - guardY) < guardSize;
     }
 
     // =========================
@@ -128,6 +157,18 @@ public abstract class Room {
         gc.setFill(Color.web("#8B6914"));
         gc.fillRect(riverX - 8, riverY, 8, riverH);
         gc.fillRect(riverX + riverW, riverY, 8, riverH);
+
+        drawGuard(gc);
+    }
+
+    protected void drawGuard(GraphicsContext gc) {
+        // a roaming shadow figure that patrols the path between the river and the NPC
+        gc.setFill(Color.color(0.05, 0.05, 0.08, 0.9));
+        gc.fillOval(guardX - guardSize / 2, guardY - guardSize / 2, guardSize, guardSize);
+
+        gc.setFill(Color.web("#e53935"));
+        gc.fillOval(guardX - 6, guardY - 4, 5, 5);
+        gc.fillOval(guardX + 2, guardY - 4, 5, 5);
     }
 
     protected void drawNPC(GraphicsContext gc, Color color) {

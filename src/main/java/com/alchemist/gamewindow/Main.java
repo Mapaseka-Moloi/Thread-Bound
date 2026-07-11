@@ -158,12 +158,10 @@ public class Main extends Application {
         double compassY = 60;
         double radius = 22;
 
-        // Draw compass outer ring
         gc.setLineWidth(2);
         gc.setStroke(Color.DARKGRAY);
         gc.strokeOval(compassX - radius, compassY - radius, radius * 2, radius * 2);
 
-        // Draw compass cardinal direction letters
         gc.setFont(new Font("Arial", 11));
         gc.setFill(Color.LIGHTGRAY);
         gc.fillText("N", compassX - 4, compassY - radius - 4);
@@ -193,7 +191,6 @@ public class Main extends Application {
             gc.fillOval(compassX - 3, compassY - 3, 6, 6);
         }
 
-        // 3. --- UI TEXT TRACKERS (Centered below the compass) ---
         gc.setFont(new Font("Arial", 14));
 
         // Heading Display

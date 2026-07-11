@@ -5,12 +5,29 @@ import javafx.scene.paint.Color;
 
 public class Ally {
     private final String name;
-    private final double x, y;
+    private double x, y;
     private final double size = 30;
     private boolean wasInside = false;
 
     public Ally(String name, double x, double y) {
         this.name = name;
+        this.x = x;
+        this.y = y;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public void setPosition(double x, double y) {
         this.x = x;
         this.y = y;
     }
