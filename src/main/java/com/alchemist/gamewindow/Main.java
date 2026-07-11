@@ -1,7 +1,7 @@
 package com.alchemist.gamewindow;
 
 import com.alchemist.world.*;
-
+import com.alchemist.world.Direction;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -18,7 +18,7 @@ public class Main extends Application {
     private final int WIDTH = 800;
     private final int HEIGHT = 600;
     Player player = new Player(WIDTH/2, HEIGHT/2);
-
+    private Direction currentDirection = Direction.NONE;
     Room cruelRoom = new Cruel("Room_1");
     Room deceitRoom = new Deceit("Room_2");
     Room honestRoom = new Honest("Room_3");
@@ -154,6 +154,53 @@ public class Main extends Application {
         for (Ally a : allies) a.draw(gc);
         player.draw(gc);
 
+        double compassX = 400;
+        double compassY = 60;
+        double radius = 22;
+
+        // Draw compass outer ring
+        gc.setLineWidth(2);
+        gc.setStroke(Color.DARKGRAY);
+        gc.strokeOval(compassX - radius, compassY - radius, radius * 2, radius * 2);
+
+        // Draw compass cardinal direction letters
+        gc.setFont(new Font("Arial", 11));
+        gc.setFill(Color.LIGHTGRAY);
+        gc.fillText("N", compassX - 4, compassY - radius - 4);
+        gc.fillText("S", compassX - 4, compassY + radius + 12);
+        gc.fillText("W", compassX - radius - 14, compassY + 4);
+        gc.fillText("E", compassX + radius + 4, compassY + 4);
+
+        // Calculate needle line coordinates
+        double targetX = compassX;
+        double targetY = compassY;
+
+        if (currentDirection == Direction.NORTH) targetY -= radius - 4;
+        else if (currentDirection == Direction.SOUTH) targetY += radius - 4;
+        else if (currentDirection == Direction.WEST)  targetX -= radius - 4;
+        else if (currentDirection == Direction.EAST)  targetX += radius - 4;
+
+        // Draw pointing needle vector
+        if (currentDirection != Direction.NONE) {
+            gc.setStroke(Color.LIGHTGREEN);
+            gc.setLineWidth(3);
+            gc.strokeLine(compassX, compassY, targetX, targetY);
+
+            gc.setFill(Color.LIGHTGREEN);
+            gc.fillOval(targetX - 3, targetY - 3, 6, 6);
+        } else {
+            gc.setFill(Color.GRAY);
+            gc.fillOval(compassX - 3, compassY - 3, 6, 6);
+        }
+
+        // 3. --- UI TEXT TRACKERS (Centered below the compass) ---
+        gc.setFont(new Font("Arial", 14));
+
+        // Heading Display
+        gc.setFill(Color.LIGHTGREEN);
+        gc.fillText("Heading: " + currentDirection, compassX - 50, compassY + radius + 35);
+
+
         gc.setFill(Color.WHITE);
         gc.setFont(new Font(16));
 
@@ -170,11 +217,27 @@ public class Main extends Application {
     private void update(){
         if (gameOver) return;
         player.update();
+        calculateDirection();
         checkRoomTriggers();
         checkAllies();
         checkThresholds();
         checkEnding();
     }
+
+    private void calculateDirection() {
+        if (player.up) {
+            currentDirection = Direction.NORTH;
+        } else if (player.down) {
+            currentDirection = Direction.SOUTH;
+        } else if (player.left) {
+            currentDirection = Direction.WEST;
+        } else if (player.right) {
+            currentDirection = Direction.EAST;
+        } else {
+            currentDirection = Direction.NONE;
+        }
+    }
+
 
     private void checkRoomTriggers() {
         if (activeRoom != null) return;
