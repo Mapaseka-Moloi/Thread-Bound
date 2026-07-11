@@ -11,6 +11,9 @@ public class Player {
 
     public boolean up, down, left, right;
 
+    // chosen at the avatar-select screen
+    public Color color = Color.CYAN;
+
     // jumping
     public boolean isJumping = false;
     private double jumpVelocity = 0;
@@ -81,7 +84,7 @@ public class Player {
         gc.translate(x, getVisualY());
         gc.rotate(Math.toDegrees(angle));
 
-        gc.setFill(Color.CYAN);
+        gc.setFill(color);
         gc.fillPolygon(
                 new double[]{0, -15, 15},
                 new double[]{-20, 10, 10},
