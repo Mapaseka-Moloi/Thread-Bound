@@ -143,12 +143,6 @@ Every decision shapes the world, and eventually the world reflects those decisio
 
 ---
 
-## Team
-
-Created by the Game Jam Team.
-
----
-
 ## License
 
 This project was created for educational and Game Jam purposes.
